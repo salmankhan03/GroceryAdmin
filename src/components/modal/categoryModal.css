@@ -1,0 +1,46 @@
+/* .productsCategoryModal{
+    z-index: 9999 !important;
+
+} */
+
+.customModalOpen {
+    width: 36rem;
+    background-color: #fff;
+    /* overflow: auto; */
+    z-index: 9999 !important;
+    top: 5%;
+    right:auto;
+    position: absolute;
+    height: 80%;
+}
+.modalBodyHeight{
+    height: 350px ;
+    overflow: auto;
+}
+.footerCustomWidth{
+    width: 36rem;
+}
+.drawerCustom{
+    position:relative !important;
+    z-index: 9999 !important;
+    transition: width 0s ease 0.3s, height 0s ease 0.3s, transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+
+} 
+.drawer-right-Custom .drawer-open-Custom{
+    width: 50%;
+    background-color: #fff;
+}
+.z-40{
+    z-index: 9999 !important;
+}
+.stickyModalHeader {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb; 
+    z-index: 1000;
+    height: auto;
+    margin-top: 0px;
+  }
+  header{
+    display: none !important;
+  }
