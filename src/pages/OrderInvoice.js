@@ -152,7 +152,7 @@ const OrderInvoice = () => {
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-semibold font-serif block">
                   {currency}
-                  {parseFloat(data.shippingCost).toFixed(2)}
+                  {parseFloat(data?.order?.shipping_price).toFixed(2)}
                 </span>
               </div>
               <div className="mb-3 md:mb-0 lg:mb-0  flex flex-col sm:flex-wrap">
@@ -161,7 +161,7 @@ const OrderInvoice = () => {
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-semibold font-serif block">
                   {currency}
-                  {parseFloat(data.discount).toFixed(2)}
+                  {parseFloat(data?.order?.discount_price).toFixed(2)}
                 </span>
               </div>
               <div className="flex flex-col sm:flex-wrap">

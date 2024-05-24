@@ -17,11 +17,11 @@ const AttributeOption = ({
   const handleSelectValue = (v, el) => {
     console.log("handleValue", v, el);
     if (el?.name === "All") {
-      const result = attributes?.variants.filter((att) => att._id !== "1");
+      const result = attributes?.variants.filter((att) => att.id !== "1");
 
       setValues({
         ...values,
-        [attributes._id]: result?.map((el) => el._id),
+        [attributes.id]: result?.map((el) => el.id),
       });
 
       
@@ -38,17 +38,17 @@ const AttributeOption = ({
       });
       setAttributeOptions(dd);
 
-      const exceptAllData = v.filter((el) => el._id !== "1");
+      const exceptAllData = v.filter((el) => el.id !== "1");
       setValues({
         ...values,
-        [attributes._id]: exceptAllData.map((el) => el._id),
+        [attributes.id]: exceptAllData.map((el) => el.id),
       });
     }
   };
 
   const handleRemoveValue = (v, el, id) => {
     console.log("handleRemoveValue", v, el);
-    if (el._id === "1") {
+    if (el.id === "1") {
      
       setSelectionLimit("1");
       let dd = attributes?.variants?.map((val) => {
@@ -65,11 +65,11 @@ const AttributeOption = ({
     } else {
     
       setSelectionLimit(null);
-      const exceptAllData = v.filter((el) => el._id !== "1");
+      const exceptAllData = v.filter((el) => el.id !== "1");
 
       setValues({
         ...values,
-        [attributes._id]: exceptAllData.map((el) => el._id),
+        [attributes.id]: exceptAllData.map((el) => el.id),
       });
     }
   };

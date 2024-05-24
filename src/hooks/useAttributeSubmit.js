@@ -22,14 +22,10 @@ const useAttributeSubmit = (id) => {
 
   let variantArrayOfObject = [];
 
-  for (let i = 0; i < variants.length; i++) {
+  for (let i = 0; i < variants?.length; i++) {
+    console.log("variants",variants)
     variantArrayOfObject = [
-      ...variantArrayOfObject,
-      {
-        name: {
-          [language]: variants[i],
-        },
-      },
+      ...variantArrayOfObject,variants[i],
     ];
   }
 
@@ -50,29 +46,27 @@ const useAttributeSubmit = (id) => {
           return;
         }
       }
+      console.log(variantArrayOfObject);
       const attributeData = {
-        title: {
-          [language]: title,
-        },
-        name: {
-          [language]: name,
-        },
+        id:id ? id :null,
+        title: title,
+        name: name,
         variants: variantArrayOfObject,
         option: option,
-        type: 'attribute',
-        lang: language,
+        status:true,
       };
 
-      // console.log("attributeData", attributeData);
+      console.log("attributeData", attributeData);
 
       if (id) {
-        const res = await AttributeServices.updateAttributes(id, attributeData);
+        const res = await AttributeServices.updateAttributes(attributeData);
         setIsUpdate(true);
         setIsSubmitting(false);
         notifySuccess(res.message);
         closeDrawer();
         setServiceId();
       } else {
+        attributeData.variants = attributeData.variants.map(variant => ({name: variant}));
         const res = await AttributeServices.addAttribute(attributeData);
         setIsUpdate(true);
         setIsSubmitting(false);
@@ -90,32 +84,25 @@ const useAttributeSubmit = (id) => {
 
   // child attribute
   const onSubmits = async ({ name }) => {
+    console.log(name)
     try {
       setIsSubmitting(true);
+      let submitObj= {
+        id:id? id :null,
+        name: name,
+        status: published ? 'show' : 'hide',
+        product_attribute_id:JSON.parse(location.pathname.split('/')[2], id)
+      }
       if (id) {
-        const res = await AttributeServices.updateChildAttributes(
-          { ids: location.pathname.split('/')[2], id },
-          {
-            name: {
-              [language]: name,
-            },
-            status: published ? 'show' : 'hide',
-          }
-        );
+        const res = await AttributeServices.addChildAttribute(submitObj);
         setIsUpdate(true);
         setIsSubmitting(false);
         notifySuccess(res.message);
         closeDrawer();
       } else {
-        const res = await AttributeServices.addChildAttribute(
-          location.pathname.split('/')[2],
-          {
-            name: {
-              [language]: name,
-            },
-            status: published ? 'show' : 'hide',
-          }
-        );
+
+       
+        const res = await AttributeServices.addChildAttribute(submitObj);
         setIsUpdate(true);
         setIsSubmitting(false);
         notifySuccess(res.message);
@@ -173,11 +160,13 @@ const useAttributeSubmit = (id) => {
       (async () => {
         try {
           const res = await AttributeServices.getAttributeById(id);
-          if (res) {
-            setResData(res);
-            setValue('title', res.title[language ? language : 'en']);
-            setValue('name', res.name[language ? language : 'en']);
-            setValue('option', res.option);
+          if (res?.status_code === 200) {
+            console.log("res",res)
+            setResData(res?.attribute);
+            setValue('title', res?.attribute?.title);
+            setValue('name', res?.attribute?.name);
+            setValue('option', res?.attribute?.option);
+            setVariants(res?.attribute?.variants)
           }
         } catch (err) {
           notifyError(err ? err?.response?.data?.message : err.message);
@@ -188,14 +177,12 @@ const useAttributeSubmit = (id) => {
     ) {
       (async () => {
         try {
-          const res = await AttributeServices.getChildAttributeById({
-            id: location.pathname.split('/')[2],
-            ids: id,
-          });
+          console.log("id",id)
+          const res = await AttributeServices.getChildAttributeById(id);
           if (res) {
             // console.log('res child', res);
-            setValue('name', res.name[language ? language : 'en']);
-            setPublished(res.status === 'show' ? true : false);
+            setValue('name', res?.attributeValue?.name);
+            setPublished(res?.attributeValue?.status === 'show' ? true : false);
           }
         } catch (err) {
           notifyError(err ? err?.response?.data?.message : err.message);

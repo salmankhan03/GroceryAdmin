@@ -47,6 +47,14 @@ const sidebar = [
         path: "/coupons",
         name: "Coupons",
       },
+      {
+        path: "/slider",
+        name: "Slider",
+      },
+      {
+        path: "/banners",
+        name: "Banners",
+      },
     ],
   },
 

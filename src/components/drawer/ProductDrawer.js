@@ -98,6 +98,8 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
     setDescription,
     addTax,
     setAddTax,
+    featuredProducts,
+    setFeaturedProducts,
     handleEditorChange,
     handleSelectLanguage,
     handleIsCombination,
@@ -171,6 +173,7 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
 
     }
   }
+
 
   return (
     <>
@@ -276,7 +279,7 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                     type=""
                     editor={ClassicEditor}
                     config={{
-                      extraPlugins: [CustomUploadAdapterPlugin],            
+                      extraPlugins: [CustomUploadAdapterPlugin],
                       toolbar: ['heading', '|', 'bold', 'italic', 'blockQuote', 'link', 'numberedList', 'bulletedList', 'imageUpload', 'imageStyle:full',
                         'imageStyle:alignLeft',
                         'imageStyle:alignCenter',
@@ -300,7 +303,7 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                       const data = editor.getData();
                       handleEditorChange(data);
                     }}
-                    style={{ height: '500px' }} 
+                    style={{ height: '500px' }}
                   />
                   <Error errorName={errors.description} />
                 </div>
@@ -455,7 +458,7 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                     defaultValue={0.0}
                     required="false"
                     label="Sale price"
-                    name="price"
+                    name="sell_price"
                     type="number"
                     placeholder="Sale price"
                     currency={currency}
@@ -472,7 +475,7 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                     minValue={0}
                     defaultValue={0}
                     label="Quantity"
-                    name="stock"
+                    name="quantity"
                     type="number"
                     placeholder={t("ProductQuantity")}
                   />
@@ -509,9 +512,27 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                 </div>
               </div>
               <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                <LabelArea label="Rating" />
+                <div className="col-span-8 sm:col-span-4">
+                  <Input
+                    {...register(`ratings`, {
+                      required: "Rating is required!",
+                    })}
+                    className="border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:bg-white"
+                    name="ratings"
+                    type="number"
+                    step="0.01"
+                    min="0"    
+                    max="5"    
+                    placeholder="Rating Count is required!"
+                  />
+                  <Error errorName={errors.ratings} />
+                </div>
+              </div>
+              <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                 <LabelArea label="Visitor Counter" />
                 <div className="col-span-8 sm:col-span-4">
-                <Input
+                  <Input
                     {...register(`visitors_counter`, {
                       required: "Visitor Count is required!",
                     })}
@@ -519,7 +540,7 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                     name="visitors_counter"
                     type="number"
                     placeholder={"Visitor Count is required!"}
-                    // onBlur={(e) => handleProductSlug(e.target.value)}
+                  // onBlur={(e) => handleProductSlug(e.target.value)}
                   />
                   <Error errorName={errors.visitors_counter} />
                 </div>
@@ -542,12 +563,21 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                <LabelArea label={"Featured Products"} />
+                <div className="col-span-8 sm:col-span-4">
+                  <SwitchToggle
+                    handleProcess={setFeaturedProducts}
+                    processOption={featuredProducts}
+                  />
+                </div>
+              </div>
             </div>
           )}
 
           {tapValue === "Combination" &&
             isCombination &&
-            (attribue.length < 1 ? (
+            (attribue?.list.length < 1 ? (
               <div
                 className="bg-teal-100 border border-teal-600 rounded-md text-teal-900 px-4 py-3 m-4"
                 role="alert"
@@ -584,22 +614,27 @@ const ProductDrawer = ({ id, handleUpdateStatus }) => {
                     labelledBy="Select"
                   />
 
-                  {attributes?.map((attribute, i) => (
-                    <div key={attribute._id}>
-                      <div className="flex w-full h-10 justify-between font-sans rounded-tl rounded-tr bg-gray-200 px-4 py-3 text-left text-sm font-normal text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                        {"Select"}
-                        {showingTranslateValue(attribute?.title, language)}
-                      </div>
+                  {attributes?.map((attribute, i) => {
+                    console.log("attributes", attributes)
+                    console.log("attribute", attribute)
 
-                      <AttributeOptionTwo
-                        id={i + 1}
-                        values={values}
-                        lang={language}
-                        attributes={attribute}
-                        setValues={setValues}
-                      />
-                    </div>
-                  ))}
+                    return (
+                      <div key={attribute.id}>
+                        <div className="flex w-full h-10 justify-between font-sans rounded-tl rounded-tr bg-gray-200 px-4 py-3 text-left text-sm font-normal text-gray-700 hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                          {"Select"}
+                          {attribute?.title}
+                        </div>
+
+                        <AttributeOptionTwo
+                          id={i + 1}
+                          values={values}
+                          lang={language}
+                          attributes={attribute}
+                          setValues={setValues}
+                        />
+                      </div>
+                    )
+                  })}
                 </div>
 
                 <div className="flex justify-end mb-6">

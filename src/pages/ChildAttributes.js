@@ -35,7 +35,7 @@ const ChildAttributes = () => {
     useToggleDrawer();
   const { toggleDrawer, lang } = useContext(SidebarContext);
   const { data, loading } = useAsync(() =>
-    AttributeServices.getAttributeById(id)
+    AttributeServices.getAttributeIdByOptions(id)
   );
 
   const { data: attributes } = useAsync(() =>
@@ -52,7 +52,7 @@ const ChildAttributes = () => {
     dataTable,
     serviceData,
     handleChangePage,
-  } = useFilter(data?.variants);
+  } = useFilter(data?.list?.data);
 
   // react hook
   const [isCheckAll, setIsCheckAll] = useState(false);
@@ -61,7 +61,7 @@ const ChildAttributes = () => {
 
   const handleSelectAll = () => {
     setIsCheckAll(!isCheckAll);
-    setIsCheck(data?.variants?.map((value) => value._id));
+    setIsCheck(data?.list?.data?.map((value) => value.id));
     if (isCheckAll) {
       setIsCheck([]);
     }
@@ -69,8 +69,9 @@ const ChildAttributes = () => {
 
   // attributes filtering except this id
   useEffect(() => {
-    const data = attributes?.filter((value) => value._id !== id);
-    setAttributeData(data);
+    console.log(attributes)
+    // const data = attributes?.filter((value) => value.id !== id);
+    // setAttributeData(data);
   }, [attributes, id]);
 
   return (
@@ -168,7 +169,7 @@ const ChildAttributes = () => {
                 </TableCell>
                 <TableCell>Id</TableCell>
                 <TableCell>Name</TableCell>
-                <TableCell>Type</TableCell>
+                {/* <TableCell>Type</TableCell> */}
                 <TableCell className="text-center">Status</TableCell>
                 <TableCell className="text-right">Actions</TableCell>
               </tr>

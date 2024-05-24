@@ -19,7 +19,7 @@ const useProductSubmit = (id) => {
   const { isDrawerOpen, closeDrawer, setIsUpdate, lang, currentPage, limitData } =
     useContext(SidebarContext);
 
-  const { data: attribue } = useAsync(AttributeServices.getShowingAttributes);
+  const { data: attribue } = useAsync(() => AttributeServices.getAllAttributes());
   const { data: globalSetting } = useAsync(SettingServices.getGlobalSetting);
   const { data: getAllBrands, } = useAsync(() => BrandServices?.getAllBrands({
     page: currentPage,
@@ -40,7 +40,7 @@ const useProductSubmit = (id) => {
   const [quantity, setQuantity] = useState(0);
 
   const [originalPrice, setOriginalPrice] = useState(0);
-  const [price, setPrice] = useState(0);
+  const [sell_price, setSell_price] = useState(0);
   const [sku, setSku] = useState("");
   const [barcode, setBarcode] = useState("");
   const [isBasicComplete, setIsBasicComplete] = useState(false);
@@ -62,8 +62,13 @@ const useProductSubmit = (id) => {
   const [slug, setSlug] = useState("");
   const [published, setPublished] = useState(true);
   const [addTax, setAddTax] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState(false);
+
   const [description, setDescription] = useState()
   const [defaultContent, setDefaultContent] = useState()
+  const [prev_Ratings, setPrev_Ratings] = useState(0);
+  const [prev_Featured, setPrev_Featured] = useState(0);
+
 
   const [searchTerm, setSearchTerm] = useState({
     brandName: '',
@@ -72,31 +77,31 @@ const useProductSubmit = (id) => {
   const [selectedBrand, setSelectedBrand] = useState();
   const [filteredBrandOptions, setFilteredBrandOptions] = useState();
 
-const handleBrandSearch = (e) => {
-  const term = e.target.value;
+  const handleBrandSearch = (e) => {
+    const term = e.target.value;
 
-  setSearchTerm((prevSearchTerm) => ({
-    ...prevSearchTerm,
-    brandName: term,
-    brand_Id: null,
-  }));
-  const filtered = getAllBrands?.list?.data?.filter((item) =>
-    item.name?.toLowerCase().includes(term?.toLowerCase())
-  );
-  setFilteredBrandOptions(filtered);
-};
-const handleBrandsSelected = (data)=>{
-  setSearchTerm({
-    brandName: data?.name,
-    brand_Id: data?.id,
-  });
-};
-const handleEditorChange = (data) => {
-  console.log(data)  
-  var encodedString = encodeURIComponent(data);
-  // var encodedString = btoa(data);
-  setDescription(encodedString);
-};
+    setSearchTerm((prevSearchTerm) => ({
+      ...prevSearchTerm,
+      brandName: term,
+      brand_Id: null,
+    }));
+    const filtered = getAllBrands?.list?.data?.filter((item) =>
+      item.name?.toLowerCase().includes(term?.toLowerCase())
+    );
+    setFilteredBrandOptions(filtered);
+  };
+  const handleBrandsSelected = (data) => {
+    setSearchTerm({
+      brandName: data?.name,
+      brand_Id: data?.id,
+    });
+  };
+  const handleEditorChange = (data) => {
+    console.log(data)
+    var encodedString = encodeURIComponent(data);
+    // var encodedString = btoa(data);
+    setDescription(encodedString);
+  };
 
 
 
@@ -126,7 +131,7 @@ const handleEditorChange = (data) => {
       setIsSubmitting(true);
       if (!imageUrl) return notifyError("Image is required!");
 
-      if (data.originalPrice < data.price) {
+      if (data.originalPrice < data.sell_price) {
         setIsSubmitting(false);
         return notifyError(
           "SalePrice must be less then or equal of product price!"
@@ -136,99 +141,53 @@ const handleEditorChange = (data) => {
         setIsSubmitting(false);
         return notifyError("Default Category is required!");
       }
-
-      const updatedVariants = variants?.map((v, i) => {
+      const updatedVariants = await Promise.all(variants?.map((v, i) => {
         const newObj = {
           ...v,
-          price: Number(v?.price || 0),
+          sell_price: Number(v?.sell_price || 0),
           originalPrice: Number(v?.originalPrice || 0),
           discount: Number(v?.discount || 0),
           quantity: Number(v?.quantity || 0),
         };
         return newObj;
-      });
-
+        // return JSON.stringify(newObj);
+      }));
+      const variantsSting = JSON.stringify(updatedVariants);
+      console.log("updatedVariants ==>", variantsSting)
       setIsBasicComplete(true);
-      setPrice(data.price);
-      setQuantity(data.stock);
+      setSell_price(data.sell_price);
+      setQuantity(data.quantity);
       setBarcode(data.barcode);
       setSku(data.sku);
       setOriginalPrice(data.originalPrice);
-      // let newImages = imageUrl
-      // const filteredUrls = imageUrl.filter(url => url.startsWith("blob:http:"));
-      // console.log(filteredUrls);
-      // let newImages =[];
-      // imageUrl.forEach((image, index) => {
-      //   const file = new File([blob], image.path, { type: blob.type });
 
-      //   // const imageStream = fs.createReadStream(`/C:/Users/Admin/Downloads/${image.path}`);
-      //   newImages.push(file)
-      //  ;
-      // });
-
-      // imageUrl.forEach((image, index) => {
-      //   // Assuming 'preview' contains a blob URL, use fetch to get the file blob
-      //   fetch(image.preview)
-      //     .then((response) => response.blob())
-      //     .then((blob) => {
-      //       console.log(blob)
-      //       const customfile = new File([blob], image.path, { type: blob.type });
-      //       console.log(customfile)
-      //       newImages.push(customfile)
-      //     });
-      // });
-      // console.log(newImages)
-
-      // static 
-    //   let newImages =[];
-
-    //   let obj ={
-    //     "id": "",
-    //     "product_id": "",
-    //     "name": "https://backend.kingsmankids.com/uploads/products/2023/10/laravel-f5011e53b385f2def4749b89ee09b524.jpg",
-    //     "original_name": "istockphoto-1080057124-612x612.jpg"
-    // }
-    // newImages.push(obj);
-    // console.log(newImages)
-
-    // let newImages =["blob:http://localhost:3000/28632b9c-6026-4207-a987-3f3511ac3b84"];
-
-
-
-
-    //
-
+      let updatedSellPrice = Number(data.sell_price)
       let formData = new FormData();
 
-      formData.append("id", productId ? productId :"");
+      formData.append("id", productId ? productId : "");
       formData.append("name", data?.title);
       formData.append("price", Number(data.originalPrice) || 0);
-      formData.append("sell_price", Number(data.price) || 0);
+      formData.append("sell_price", Number(data.sell_price) || 0);
       formData.append("bar_code", data.barcode || "");
       formData.append("brand", searchTerm?.brandName);
-      formData.append("brand_id", searchTerm.brand_Id ?  searchTerm.brand_Id  : '');
+      formData.append("brand_id", searchTerm.brand_Id ? searchTerm.brand_Id : '');
       formData.append("description", description);
       formData.append("slug", data.slug ? data.slug : data.title.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"));
-      formData.append("quantity",  data.stock);
+      formData.append("quantity", data.quantity);
       formData.append("tags", tag?.map(tag => `${tag}`).join(','));
       formData.append("sku", data.sku || "");
       formData.append("category_id", selectedCategory[0].id);
       formData.append("status", published ? "show" : "hide");
-      formData.append("isCombination", updatedVariants?.length > 0 ? isCombination : false);
-      formData.append("variants", isCombination ? updatedVariants : []);
+      formData.append("is_combination", updatedVariants?.length > 0 ? 1 : 0);
+      formData.append("variants", isCombination ? variantsSting : []);
       formData.append("is_tax_apply", addTax === true ? 1 : 0);
       formData.append("visitors_counter", data?.visitors_counter);
-
-      // await Promise.all(imageUrl.map(async (image, index) => {
-      //   if(image.preview){
-      //     const response = await fetch(image.preview);
-      //     const blob = await response.blob();
-      //
-      //     const file = new File([blob], image.name, { type: blob.type });
-      //
-      //     formData.append(`files${index + 1}`, file, file.name);
-      //   }
-      // }));
+      formData.append("variants_array", JSON.stringify(variantTitle));
+      formData.append("ratings", data?.ratings);
+      formData.append("sell_price_is_change", Number(sell_price) === updatedSellPrice ? 0 :1 );
+      formData.append("ratings_is_change", data?.ratings ===  prev_Ratings ? "0" :"1" );       
+      formData.append("is_featured", featuredProducts ? 1:0);
+      formData.append("is_featured_is_change",prev_Featured === featuredProducts ? 0 : 1)
 
       await Promise.all(imageUrl.map(async (image, index) => {
         if (image.preview) {
@@ -250,36 +209,37 @@ const handleEditorChange = (data) => {
         }
       }));
 
-      
+
       const imageCount = imageUrl.length;
-      const productData = {
-        ...Array.from({ length: imageCount }, (_, index) => ({
-          [`file${index + 1}`]: imageUrl[index]
-        })).reduce((acc, val) => ({ ...acc, ...val }), {}),
-        id: productId ? productId :"",
-        name: data?.title,
-        price: Number(data.originalPrice) || 0,
-        bar_code: data.barcode || "",
-        brand: searchTerm?.brandName,
-        brand_id : searchTerm.brand_Id ?  searchTerm.brand_Id  : null,
-        description: data.description,
-        slug: data.slug ? data.slug : data.title.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"),
-        quantity:variants?.length < 1 ? data.stock : Number(totalStock),
-        tags: tag?.map(tag => `${tag}`).join(','),
-        sku: data.sku || "",
-        category_id:selectedCategory[0].id,
-        status: published ? "show" : "hide",
-        // category: defaultCategory[0].id,
-        isCombination: updatedVariants?.length > 0 ? isCombination : false,
-        variants: isCombination ? updatedVariants : [],
-        is_tax_apply: addTax === true ? 1 : 0
-      };
-      
+      // const productData = {
+      //   ...Array.from({ length: imageCount }, (_, index) => ({
+      //     [`file${index + 1}`]: imageUrl[index]
+      //   })).reduce((acc, val) => ({ ...acc, ...val }), {}),
+      //   id: productId ? productId : "",
+      //   name: data?.title,
+      //   price: Number(data.originalPrice) || 0,
+      //   bar_code: data.barcode || "",
+      //   brand: searchTerm?.brandName,
+      //   brand_id: searchTerm.brand_Id ? searchTerm.brand_Id : null,
+      //   description: data.description,
+      //   slug: data.slug ? data.slug : data.title.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"),
+      //   quantity: variants?.length < 1 ? data.stock : Number(totalStock),
+      //   tags: tag?.map(tag => `${tag}`).join(','),
+      //   sku: data.sku || "",
+      //   category_id: selectedCategory[0].id,
+      //   status: published ? "show" : "hide",
+      //   // category: defaultCategory[0].id,
+      //   isCombination: updatedVariants?.length > 0 ? isCombination : false,
+      //   variants: isCombination ? updatedVariants : [],
+      //   is_tax_apply: addTax === true ? 1 : 0
+      // };
+
       // return setIsSubmitting(false);
 
       if (updatedId) {
         const res = await ProductServices.updateProduct(updatedId, formData);
         if (res) {
+
           if (isCombination) {
             setIsUpdate(true);
             notifySuccess(res?.message);
@@ -303,28 +263,29 @@ const handleEditorChange = (data) => {
         const res = await ProductServices.addProduct(formData);
         // console.log("res is ", res);
         if (isCombination) {
-          setUpdatedId(res._id);
+          setUpdatedId(res.id);
           setValue("title", res.title[language ? language : "en"]);
           setValue("description", res.description[language ? language : "en"]);
           setValue("slug", res.slug);
           setValue("show", res.show);
           setValue("barcode", res.bar_code);
-          setValue("stock", res.stock);
+          setValue("quantity", res.quantity);
           setTag(JSON.parse(res.tag));
           setImageUrl(res?.images);
           setVariants(res.variants);
           setValue("productId", res.productId);
           setProductId(res.productId);
-          setOriginalPrice(res?.prices?.originalPrice);
-          setPrice(res?.prices?.price);
+          setOriginalPrice(res?.prices);
+          setSell_price(res?.sell_price);
           setBarcode(res.bar_code);
           setSku(res.sku);
           setPublished(res?.status)
           setAddTax(res?.is_tax_apply)
+          setFeaturedProducts(res?.is_featured)
           const result = res.variants.map(
             ({
               originalPrice,
-              price,
+              sell_price,
               discount,
               quantity,
               barcode,
@@ -376,14 +337,16 @@ const handleEditorChange = (data) => {
       setValue("slug");
       setValue("description");
       setValue("quantity");
-      setValue("stock");
+      setValue("quantity");
       setValue("originalPrice");
-      setValue("price");
+      setValue("sell_price");
       setValue("barcode");
       setValue("productId");
       setValue("visitors_counter")
+      setValue("ratings")
       setPublished(true);
       setAddTax(true);
+      setFeaturedProducts(false)
 
       setProductId("");
       // setValue('show');
@@ -407,11 +370,11 @@ const handleEditorChange = (data) => {
       clearErrors("title");
       clearErrors("slug");
       clearErrors("description");
-      clearErrors("stock");
       clearErrors("quantity");
-      setValue("stock", 0);
+      clearErrors("quantity");
+      setValue("quantity", 0);
       setValue("costPrice", 0);
-      setValue("price", 0);
+      setValue("sell_price", 0);
       setValue("originalPrice", 0);
       clearErrors("show");
       clearErrors("barcode");
@@ -435,74 +398,70 @@ const handleEditorChange = (data) => {
           // console.log("res", res.data);
 
           if (res) {
-            // console.log("PRODUCTE DETAILS RESPONSE",res)
             var decodeString = decodeURIComponent(res?.data?.description)
+
+            var decodeStringValue = (decodeString === "null") ? "" : decodeString;
+
             // console.log("decodeString",decodeString);
             setResData(res.data);
             setSlug(res.data.slug);
             setUpdatedId(res.data.id);
             setValue("title", res.data.name);
-            setValue("description",res.data.description);
+            setValue("description", res.data.description);
             setValue("slug", res.data.slug);
             setValue("show", res.data.show);
             setValue("sku", res.data.sku);
             setValue("barcode", res.data.bar_code);
-            setValue("stock", res.data.stock);
+            setValue("quantity", res.data.quantity);
             setValue("productId", res.data.productId);
-            setValue("price", res?.data?.price);
+            setValue("sell_price", res?.data?.sell_price);
             setValue("originalPrice", res?.data?.price);
-            setValue("stock", res.data.quantity);
+            setValue("quantity", res.data.quantity);
             setValue("visitors_counter", res?.data?.visitors_counter);
+            setValue("ratings", res?.data?.ratings);
             const tagsArray = res?.data?.tags?.split(',');
-            setTag(tagsArray ? tagsArray :[]);   
+            setTag(tagsArray ? tagsArray : []);
             setProductId(res.data.id);
             setPublished(res.data.status === "show" ? true : false);
             setAddTax(res.data?.is_tax_apply === 1 ? true : false)
-            setDefaultContent(decodeString)
-            // setValue("")
+            setFeaturedProducts(res.data?.is_featured)
+            setPrev_Featured(res.data?.is_featured)
+            setDefaultContent(decodeStringValue)
+            setPrev_Ratings(res.data?.ratings)
             setSearchTerm((prevData) => ({
               ...prevData,
               brandName: res.data.brand,
               brand_Id: res.data.brand_id,
-          }));
-        
-        let categorySelected={
-          id:res?.data?.category?.id,
-          name:res?.data?.category?.name
-        }
-          setSelectedCategory([categorySelected]);
-          setDefaultCategory([categorySelected]);
-
-            setBarcode(res.data.barcode);
+            }));
+            let categorySelected = {
+              id: res?.data?.category?.id,
+              name: res?.data?.category?.name
+            }
+            setSelectedCategory([categorySelected]);
+            setDefaultCategory([categorySelected]);
+            setBarcode(res.data.bar_code);
             setSku(res.data.sku);
+            setOriginalPrice(res?.data?.price)
+            setSell_price(res?.data?.sell_price)
             const imagesData = res.data?.images;
             if (imagesData) {
               const imageNames = imagesData.map(image => image.name);
               setImageUrl(imageNames);
             }
-          
-            console.log(res?.data)
-
-            // res.categories.map((category) => {
-            //   category.name = showingTranslateValue(category?.name, lang);
-
-            //   return category;
-            // });
-
-            // res.category.name = showingTranslateValue(
-            //   res?.category?.name,
-            //   lang
-            // );
-
-            
-    
-              
-            setVariants(res.variants);
-            setIsCombination(res.isCombination);
-            setQuantity(res?.stock);
-            setTotalStock(res.stock);
-            setOriginalPrice(res?.prices?.originalPrice);
-            setPrice(res?.prices?.price);
+            //   console.log("variants 2", res?.data.variants)
+            //  console.log(JSON.parse(res?.data?.variants))
+            //  let stringifyVarinats = JSON.parse(res?.data?.variants)
+            // let stringifyVarinats= [];
+            // for (let index = 0; index < res?.data?.variants.length; index++) {
+            //   const element = res?.data?.variants[index];
+            //   // console.log(element)
+            //   stringifyVarinats.push(element)
+            // }
+            // console.log("stringifyVarinats",stringifyVarinats)
+            setVariants(res?.data?.variants ? JSON.parse(res?.data?.variants) : []);
+            setIsCombination(res?.data?.variants ? 1 : 0);
+            setQuantity(res?.data.quantity);
+            setTotalStock(res.quantity);
           }
         } catch (err) {
           notifyError(err ? err?.response?.data?.message : err.message);
@@ -520,77 +479,108 @@ const handleEditorChange = (data) => {
     lang,
   ]);
 
-  //for filter related attribute and extras for every product which need to update
+
   useEffect(() => {
-    const result = attribue
+    console.log("attribue", attribue)
+    console.log("variants", variants)
+    console.log("attribue",)
+    const result = attribue?.list?.data
       ?.filter((att) => att.option !== "Checkbox")
       .map((v) => {
         return {
-          label: showingTranslateValue(v?.title, lang),
-          value: showingTranslateValue(v?.title, lang),
+          label: v?.title,
+          value: v?.title,
         };
-      });
+      }) ?? [];
 
-    setAttTitle([...result]);
-    let res ;
-    // const res = Object?.keys(Object.assign({}, ...variants));
-    if (variants && typeof variants === 'object') {
-       res = Object.keys(Object.assign({}, ...Object.values(variants)));
-      console.log(res);
-    } 
-    const varTitle = attribue?.filter((att) => res.includes(att._id));
+    setAttTitle(result);
+    const res = Object?.keys(Object.assign({}, ...variants));
+    const varTitle = attribue?.list?.data?.filter((att) => res.includes(JSON.stringify(att.id)));
 
-    if (variants?.length > 0) {
-      const totalStock = variants?.reduce((pre, acc) => pre + acc.quantity, 0);
-      setTotalStock(Number(totalStock));
-    }
+    // if (variants?.length > 0) {
+    //   const totalStock = variants?.reduce((pre, acc) => pre + acc.quantity, 0);
+    //   setTotalStock(Number(totalStock));
+    // }
+    console.log("varTitle", varTitle)
     setVariantTitle(varTitle);
-  }, [attribue, variants, language, lang]);
-
+  }, [attribue, variants]);
   //for adding attribute values
-  const handleAddAtt = (v, el) => {
-    const result = attribue.filter((att) => {
-      const attribueTItle = showingTranslateValue(att?.title, lang);
+  const handleAddAtt = async (v, el) => {
+    const result = attribue?.list?.data?.filter((att) => {
+      const attribueTItle = att?.title;
       return v.some((item) => item.label === attribueTItle);
     });
+    console.log("result", result)
+    for (let index = 0; index < result.length; index++) {
+      let options;
+      const attributeOptions = await AttributeServices.getAttributeIdByOptions(result[index]?.id)
+        .then((resp) => {
+          console.log(resp)
+          if (resp?.status_code === 200) {
+            options = resp?.list?.data
+          }
+
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      console.log("attributeOptions", options)
+      result[index]['variants'] = options
+    }
+    console.log("updated result", result)
 
     const attributeArray = result.map((value) => {
-      const attributeTitle = showingTranslateValue(value?.title, lang);
+      const attributeTitle = value?.title
       return {
         ...value,
         label: attributeTitle,
         value: attributeTitle,
       };
     });
-
+    console.log("attributeArray", attributeArray)
     setAttributes(attributeArray);
   };
 
   //generate all combination combination
   const handleGenerateCombination = () => {
-    if (Object.keys(values).length === 0) {
+    console.log("values", values)
+    let data = values
+    for (const key in data) {
+      if (data.hasOwnProperty(key) && Array.isArray(data[key]) && data[key].length > 0) {
+        data[key][0] = JSON.stringify(data[key][0]);
+      }
+    }
+    console.log("data", data)
+    console.log("stringifiedElements",)
+    if (Object.keys(data).length === 0) {
       return notifyError("Please select a variant first!");
     }
+    console.log("variants 597", variants)
+    let CustomVariants = variants == undefined ? [] : variants
+    console.log("CustomVariants", CustomVariants)
+    const result = Array.isArray(CustomVariants) ?
+      CustomVariants.filter(
+        ({
+          originalPrice,
+          discount,
+          sell_price,
+          quantity,
+          barcode,
+          sku,
+          productId,
+          image,
+          ...rest
+        }) => JSON.stringify({ ...rest }) !== "{}"
 
-    const result = variants.filter(
-      ({
-        originalPrice,
-        discount,
-        price,
-        quantity,
-        barcode,
-        sku,
-        productId,
-        image,
-        ...rest
-      }) => JSON.stringify({ ...rest }) !== "{}"
-    );
+      ) : [];
 
-    // console.log("result", result);
-
+    console.log("result", result);
     setVariants(result);
 
-    const combo = combinate(values);
+    console.log("data", data)
+
+    const combo = combinate(data);
+
 
     combo.map((com, i) => {
       if (JSON.stringify(variant).includes(JSON.stringify(com))) {
@@ -600,15 +590,15 @@ const handleEditorChange = (data) => {
           ...com,
 
           originalPrice: originalPrice || 0,
-          price: price || 0,
+          sell_price: sell_price || 0,
           quantity: Number(quantity),
-          discount: Number(originalPrice - price),
+          discount: Number(originalPrice - sell_price),
           productId: productId && productId + "-" + (variants.length + i),
           barcode: barcode,
           sku: sku,
           image: imageUrl[0] || "",
         };
-
+        console.log("variants 4", newCom)
         setVariants((pre) => [...pre, newCom]);
         return setVariant((pre) => [...pre, com]);
       }
@@ -643,9 +633,8 @@ const handleEditorChange = (data) => {
     // console.log("handleRemoveVariant", vari, ext);
     swal({
       title: `Are you sure to delete this ${ext ? "Extra" : "combination"}!`,
-      text: `(If Okay, It will be delete this ${
-        ext ? "Extra" : "combination"
-      })`,
+      text: `(If Okay, It will be delete this ${ext ? "Extra" : "combination"
+        })`,
       icon: "warning",
       buttons: true,
       dangerMode: true,
@@ -656,7 +645,7 @@ const handleEditorChange = (data) => {
         // console.log("result", result);
         const {
           originalPrice,
-          price,
+          sell_price,
           discount,
           quantity,
           barcode,
@@ -740,7 +729,7 @@ const handleEditorChange = (data) => {
   //this one for combination list
   const handleQuantityPrice = (value, name, id, variant) => {
     // console.log("handleQuantityPrice", name, "value", value);
-    if (name === "price" && Number(variant.originalPrice) < Number(value)) {
+    if (name === "sell_price" && Number(variant.originalPrice) < Number(value)) {
       // variants[id][name] = Number(variant.originalPrice);
       notifyError("SalePrice must be less then or equal of product price!");
       setValue("price", variant.originalPrice);
@@ -832,7 +821,9 @@ const handleEditorChange = (data) => {
     setDescription,
     addTax,
     setAddTax,
-    defaultContent, 
+    featuredProducts,
+    setFeaturedProducts,
+    defaultContent,
     setDefaultContent,
     handleEditorChange,
     handleSelectLanguage,

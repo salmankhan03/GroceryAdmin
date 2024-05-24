@@ -26,6 +26,9 @@ const Currencies = lazy(() => import("../pages/Currencies"));
 const Setting = lazy(() => import("../pages/Setting"));
 const StaticPage = lazy(() => import("../pages/StaticPage"));
 const EmailTemplate = lazy(() => import("../pages/EmailTemplate"));
+const Sliders = lazy(() => import("../pages/Sliders"));
+const Banners = lazy(() => import("../pages/Banners"));
+
 
 
 /*
@@ -112,6 +115,13 @@ const routes = [
   {
     path: "/coupons",
     component: Coupons,
+  },
+  {
+    path: "/slider",
+    component: Sliders,
+  },  {
+    path: "/banners",
+    component: Banners,
   },
   { path: "/settings", component: Setting },
   { path: "/emailTemplate", component: EmailTemplate },

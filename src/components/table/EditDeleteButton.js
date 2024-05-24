@@ -15,6 +15,7 @@ const EditDeleteButton = ({
   product,
   parent,
   children,
+  hideDeleteButton
 }) => {
   const { t } = useTranslation();
   // console.log('edite delet button')
@@ -52,8 +53,7 @@ const EditDeleteButton = ({
           <button
             disabled={isCheck?.length > 0}
             onClick={() => handleUpdate(id)}
-            className="p-2 cursor-pointer text-gray-400 hover:text-green-600 focus:outline-none"
-          >
+            className={`${hideDeleteButton ? 'hidden' : ''} p-2 cursor-pointer text-gray-400 hover:text-green-600 focus:outline-none`} >
             <Tooltip
               id="edit"
               Icon={FiEdit}

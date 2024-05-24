@@ -14,20 +14,23 @@ import { notifyError, notifySuccess } from "utils/toast";
 import BrandServices from "services/BrandServices";
 
 const ShowHideButton = ({ id, status, category, currencyStatusName,data }) => {
-  // console.log('from staf', status)
+  // console.log('from staf', id,status)
   const location = useLocation();
   const { setIsUpdate } = useContext(SidebarContext);
   //  console.log('coupns')
   const handleChangeStatus = async (id) => {
+    // console.log("CALL",status)
     // return notifyError("CRUD operation is disabled for this option!");
     try {
       let newStatus;
       if (status === "show" || status === 1) {
-        newStatus = status === 1 ? 0 : "hide";
+        newStatus = status === 1 ? 0 : status === "show" ? "hide":'';
       } else {
-        newStatus = status === 0 ? 1: "show";
+        newStatus = status === 0 ? 1: status === "hide" ? "show":'';
       }
 
+      // console.log(newStatus)
+      // console.log(location.pathname,"path")
       if (location.pathname === "/categories" || category) {
         if(!data?.parent_id){
           data['parent_id'] = null
@@ -79,9 +82,10 @@ const ShowHideButton = ({ id, status, category, currencyStatusName,data }) => {
       }
 
       if (location.pathname === "/attributes") {
-        const res = await AttributeServices.updateStatus(id, {
-          status: newStatus,
-        });
+        console.log("here",data)
+        data.status = newStatus
+        console.log("Data",data)
+        const res = await AttributeServices.updateAttributes(data);
         setIsUpdate(true);
         notifySuccess(res.message);
       }

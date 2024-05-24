@@ -1,22 +1,23 @@
 import requests from './httpService';
 
 const AttributeServices = {
-  getAllAttributes: async ({ type, option, option1 }) => {
-    return requests.get(
-      `/attributes?type=${type}&option=${option}&option1=${option1}`
-    );
+  getAllAttributes: async () => {
+    return requests.post(`/product-attribute/list`);
   },
 
   getShowingAttributes: async (body) => {
-    return requests.get('/attributes/show', body);
+    return requests.post('/product-attribute/list');
   },
 
   addAttribute: async (body) => {
-    return requests.post('/attributes/add', body);
+    return requests.post('/product-attribute/upsert', body);
+  },
+  updateAttributes: async (body) => {
+    return requests.post('/product-attribute/upsert', body);
   },
 
-  addChildAttribute: async (id, body) => {
-    return requests.put(`/attributes/add/child/${id}`, body);
+  addChildAttribute: async (body) => {
+    return requests.post(`/product-attribute-value/upsert`, body);
   },
 
   addAllAttributes: async (body) => {
@@ -24,17 +25,14 @@ const AttributeServices = {
   },
 
   getAttributeById: async (id) => {
-    return requests.get(`/attributes/${id}`);
+    return requests.get(`/product-attribute/${id}/get-by-id`);
   },
-
-  getChildAttributeById: async ({ id, ids }) => {
-    return requests.get(`/attributes/child/${id}/${ids}`);
+  getAttributeIdByOptions: async (id) => {
+    return requests.get(`/product-attribute/${id}/values`);
   },
-
-  updateAttributes: async (id, body) => {
-    return requests.put(`/attributes/${id}`, body);
+  getChildAttributeById: async (ids) => {
+    return requests.get(`/product-attribute-value/${ids}/get-by-id`);
   },
-
   updateChildAttributes: async ({ id, ids }, body) => {
     return requests.put(`/attributes/update/child/${ids}/${id}`, body);
   },
@@ -48,11 +46,11 @@ const AttributeServices = {
   },
 
   deleteAttribute: async (id, body) => {
-    return requests.delete(`/attributes/${id}`, body);
+    return requests.get(`/product-attribute/${id}/delete`, body);
   },
 
-  deleteChildAttribute: async ({ id, ids }, body) => {
-    return requests.put(`/attributes/delete/child/${ids}/${id}`, body);
+  deleteChildAttribute: async (id) => {
+    return requests.get(`/product-attribute-value/${id}/delete`);
   },
 
   updateManyAttribute: async (body) => {
@@ -64,11 +62,11 @@ const AttributeServices = {
   },
 
   deleteManyAttribute: async (body) => {
-    return requests.patch('/attributes/delete/many', body);
+    return requests.post('/product-attribute/multiple-delete', body);
   },
 
   deleteManyChildAttribute: async (body) => {
-    return requests.patch('/attributes/delete/child/many', body);
+    return requests.post('/product-attribute-value/multiple-delete', body);
   },
 };
 

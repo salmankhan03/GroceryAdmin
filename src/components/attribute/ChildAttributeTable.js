@@ -17,18 +17,21 @@ const ChildAttributeTable = ({
   lang,
   loading,
 }) => {
-  // console.log(lang);
-  // console.log("att", childAttributes);
+  console.log(lang);
+  console.log("att", att);
+  console.log("childAttributes", childAttributes);
+
 
   const { title, serviceId, handleModalOpen, handleUpdate } = useToggleDrawer();
 
   const handleClick = (e) => {
     const { id, checked } = e.target;
-    setIsCheck([...isCheck, id]);
+    setIsCheck([...isCheck, JSON.parse(id)]);
     if (!checked) {
-      setIsCheck(isCheck.filter((item) => item !== id));
+      setIsCheck(isCheck.filter((item) => item !== JSON.parse(id)));
     }
   };
+
 
   return (
     <>
@@ -47,33 +50,33 @@ const ChildAttributeTable = ({
               <CheckBox
                 type="checkbox"
                 name="child-attribute"
-                id={attribute._id}
+                id={attribute.id}
                 handleClick={handleClick}
-                isChecked={isCheck?.includes(attribute._id)}
+                isChecked={isCheck?.includes(attribute.id)}
               />
             </TableCell>
             <TableCell className="font-semibold uppercase text-xs">
-              {attribute?._id?.substring(20, 24)}
+              {attribute?.id}
             </TableCell>
 
             <TableCell className="font-medium text-sm">
-              {showingTranslateValue(attribute?.name, lang)}
+              {attribute?.name}
             </TableCell>
 
-            <TableCell className="font-medium text-sm">{att?.option}</TableCell>
+            {/* <TableCell className="font-medium text-sm">{attribute?.type}</TableCell> */}
 
             <TableCell className="text-center">
-              <ShowHideButton id={attribute._id} status={attribute.status} />
+              <ShowHideButton id={attribute.id} status={attribute.status} />
             </TableCell>
 
             <TableCell>
               <EditDeleteButton
-                id={attribute._id}
+                id={attribute.id}
                 isCheck={isCheck}
                 setIsCheck={setIsCheck}
                 handleUpdate={handleUpdate}
                 handleModalOpen={handleModalOpen}
-                title={showingTranslateValue(attribute.name, lang)}
+                title={attribute.name}
               />
             </TableCell>
           </TableRow>

@@ -24,6 +24,8 @@ import BrandServices from "services/BrandServices";
 import StaticPageServices from "services/StaticPageServices";
 import EmailTemplateServices from "services/EmailTemplateServices";
 import PermissionServices from "services/PermissionServices";
+import SliderServices from "services/SliderServices";
+import BannerServices from "services/BannerServices";
 
 const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
   const { isModalOpen, closeModal, setIsUpdate } = useContext(SidebarContext);
@@ -74,6 +76,50 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
           setIsSubmitting(false);
         } else {
           const res = await CouponServices.deleteCoupon(id);
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setServiceId();
+          closeModal();
+          setIsSubmitting(false);
+        }
+      }
+      if (location.pathname === "/slider") {
+        if (ids) {
+
+          const  apiRequestBody= {
+            ids: ids.join(',')
+          };
+          const res = await SliderServices.deleteManySliders(apiRequestBody);
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setIsCheck([]);
+          setServiceId();
+          closeModal();
+          setIsSubmitting(false);
+        } else {
+          const res = await SliderServices.deleteSlider(id);
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setServiceId();
+          closeModal();
+          setIsSubmitting(false);
+        }
+      }
+      if (location.pathname === "/banners") {
+        if (ids) {
+
+          const  apiRequestBody= {
+            ids: ids.join(',')
+          };
+          const res = await BannerServices.deleteManySliders(apiRequestBody);
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          setIsCheck([]);
+          setServiceId();
+          closeModal();
+          setIsSubmitting(false);
+        } else {
+          const res = await BannerServices.deleteBanner(id);
           setIsUpdate(true);
           notifySuccess(res.message);
           setServiceId();
@@ -206,9 +252,10 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
 
       if (location.pathname === "/attributes") {
         if (ids) {
-          const res = await AttributeServices.deleteManyAttribute({
-            ids: ids,
-          });
+          const  apiRequestBody= {
+            ids: ids.join(',')
+          };
+          const res = await AttributeServices.deleteManyAttribute(apiRequestBody);
           setIsUpdate(true);
           notifySuccess(res.message);
           setIsCheck([]);
@@ -229,10 +276,10 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
         location.pathname === `/attributes/${location.pathname.split("/")[2]}`
       ) {
         if (ids) {
-          const res = await AttributeServices.deleteManyChildAttribute({
-            id: location.pathname.split("/")[2],
-            ids: ids,
-          });
+          const  apiRequestBody= {
+            ids: ids.join(',')
+          };
+          const res = await AttributeServices.deleteManyChildAttribute(apiRequestBody);
           setIsUpdate(true);
           notifySuccess(res.message);
           setServiceId();
@@ -242,10 +289,7 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
         } else {
           console.log("att value delete", id, location.pathname.split("/")[2]);
 
-          const res = await AttributeServices.deleteChildAttribute({
-            id: id,
-            ids: location.pathname.split("/")[2],
-          });
+          const res = await AttributeServices.deleteChildAttribute(id);
           setIsUpdate(true);
           notifySuccess(res.message);
           setServiceId();

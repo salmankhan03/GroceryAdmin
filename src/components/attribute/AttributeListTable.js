@@ -6,6 +6,7 @@ import CombinationInput from "components/form/CombinationInput";
 import SkuBarcodeInput from "components/form/SkuBarcodeInput";
 import EditDeleteButtonTwo from "components/table/EditDeleteButtonTwo";
 import { showingTranslateValue } from "utils/translate";
+import AttributeServices from "services/AttributeServices";
 
 const AttributeListTable = ({
   lang,
@@ -20,6 +21,29 @@ const AttributeListTable = ({
   handleQuantityPrice,
   handleSelectInlineImage,
 }) => {
+  // console.log("variants", variants)
+  // console.log("variantTitle", variantTitle)
+  // if (variantTitle.length > 0) {
+  //   for (let index = 0; index < variantTitle.length; index++) {
+  //     // getAttributeIDByOptions(variantTitle[index]?.id, index)
+  //   }
+  // }
+  // // 
+  // async function getAttributeIDByOptions(id, index) {
+  //   await AttributeServices.getAttributeIdByOptions(id)
+  //     .then((resp) => {
+  //       console.log(resp)
+  //       if (resp?.status_code === 200) {
+  //         let options = resp?.list?.data
+  //         // console.log("options",options)
+  //         variantTitle[index]['variants']= options
+  //       }
+
+  //     })
+  //     .catch((err) => {
+  //       console.log(err)
+  //     })
+  // }
   const { t } = useTranslation();
 
   return (
@@ -70,14 +94,14 @@ const AttributeListTable = ({
                         const attributeData = att?.variants?.filter(
                           (val) => val?.name !== "All"
                         );
-
+                        let varintId = variant[att?.id] ? JSON.parse(variant[att?.id]) : ''
                         const attributeName = attributeData?.find(
-                          (v) => v._id === variant[att?._id]
+                          (v) => v.id === varintId
                         )?.name;
                         if (attributeName === undefined) {
-                          return attributeName?.en;
+                          return attributeName;
                         } else {
-                          return showingTranslateValue(attributeName, lang);
+                          return attributeName;
                         }
                       })
                       ?.filter(Boolean)
@@ -129,11 +153,11 @@ const AttributeListTable = ({
             <TableCell className="font-medium text-sm">
               <CombinationInput
                 id={i}
-                name="price"
+                name="sell_price"
                 placeholder="Sale price"
                 variant={variant}
                 isBulkUpdate={isBulkUpdate}
-                value={variant.price || ""}
+                value={variant.sell_price || ""}
                 handleQuantityPrice={handleQuantityPrice}
               />
             </TableCell>

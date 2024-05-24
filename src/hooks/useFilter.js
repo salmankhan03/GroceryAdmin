@@ -86,6 +86,9 @@ const useFilter = (data) => {
   const [searchText, setSearchText] = useState("");
   const [searchUser, setSearchUser] = useState("");
   const [searchCoupon, setSearchCoupon] = useState("");
+  const [searchSlider, setSearchSlider] = useState("");
+  const [searchBanner, setSearchBannerr] = useState("");
+
   const [searchCategory,setSearchCategory] =useState("")
   const [filterCategory,setFilterCategory] =useState("")
   const [searchOrder, setSearchOrder] = useState("");
@@ -125,6 +128,10 @@ const useFilter = (data) => {
   const languageRef = useRef("");
   const taxRef = useRef("");
   const shippingRef = useRef("");
+  const sliderRef = useRef("");
+  const bannerRef = useRef("");
+
+
 
   dayjs.extend(isBetween);
   dayjs.extend(isToday);
@@ -382,6 +389,14 @@ const useFilter = (data) => {
   const handleSubmitCoupon = (e) => {
     e.preventDefault();
     setSearchCoupon(couponRef.current.value);
+  };
+  const handleSubmitSlider = (e) => {
+    e.preventDefault();
+    setSearchSlider(sliderRef.current.value);
+  };
+  const handleSubmitBanner = (e) => {
+    e.preventDefault();
+    setSearchBannerr(bannerRef.current.value);
   };
   const handleSubmitOrder = (e) => {
     e.preventDefault();
@@ -825,6 +840,8 @@ const useFilter = (data) => {
     userRef,
     searchRef,
     couponRef,
+    sliderRef,
+    bannerRef,
     brandRef,
     orderRef,
     categoryRef,
@@ -851,6 +868,8 @@ const useFilter = (data) => {
     handleSubmitUser,
     handleSubmitForAll,
     handleSubmitCoupon,
+    handleSubmitSlider,
+    handleSubmitBanner,
     handleSubmitOrder,
     handleSubmitBrands,
     handleSubmitCategory,
